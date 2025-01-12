@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan de Suscripción</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">🎵 TuneDrop</div>
+    </header>
+
+    <section class="plan-info">
+        <h1>Plan Premium</h1>
+        <p><strong>Costo:</strong> $2.99/mes</p>
+        <ul>
+            <li>Acceso ilimitado a música</li>
+            <li>Sin anuncios</li>
+            <li>Escucha sin conexión</li>
+        </ul>
+        <button id="subscribe-btn" class="cta-button">Continuar</button>
+    </section>
+
+    <footer class="footer">
+        <p>&copy; 2025 TuneDrop. Todos los derechos reservados.</p>
+    </footer>
+
+    <script type="module">
+        import app from './firebase-config.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js';
+
+        const auth = getAuth(app);
+
+        document.getElementById('subscribe-btn').addEventListener('click', () => {
+            // Verificar si el usuario está autenticado
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    window.location.href = 'payment.html'; // Usuario autenticado, ir a pago
+                } else {
+                    window.location.href = 'login.html'; // No autenticado, ir a inicio de sesión
+                }
+            });
+        });
+    </script>
+</body>
+</html>

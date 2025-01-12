@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pago - TuneDrop</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://www.paypal.com/sdk/js?client-id=Aa7IVbjRpkx-g_RMxu76D-oL-WPc2lvZSWDB3oKPzSvpDc70fm0OOZ-VRnh7yfbdZ7PaUqlxXpXdCeMj&vault=true&intent=subscription" data-sdk-integration-source="button-factory"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">🎵 TuneDrop</div>
+    </header>
+
+    <section class="payment">
+        <h1>Completa tu suscripción</h1>
+        <p>Precio: <strong>$2.99/mes</strong></p>
+        <div id="paypal-button-container-P-8BK72298US320035EM6CCJDQ"></div>
+    </section>
+
+    <footer class="footer">
+        <p>&copy; 2025 TuneDrop. Todos los derechos reservados.</p>
+    </footer>
+
+    <script type="module">
+        import app from './firebase-config.js';
+        import { getFirestore, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js';
+
+        const db = getFirestore(app);
+
+        const user = JSON.parse(localStorage.getItem('currentUser'));
+        if (!user) {
+            alert('Debes iniciar sesión primero.');
+            window.location.href = 'login.html';
+        }
+
+        paypal.Buttons({
+            style: {
+                shape: 'rect',
+                color: 'gold',
+                layout: 'vertical',
+                label: 'subscribe'
+            },
+            createSubscription: function (data, actions) {
+                return actions.subscription.create({
+                    /* Crea la suscripción usando el ID del plan proporcionado */
+                    plan_id: 'P-8BK72298US320035EM6CCJDQ'
+                });
+            },
+            onApprove: async function (data, actions) {
+                const subscriptionID = data.subscriptionID; // ID de la suscripción aprobada
+                alert(`Pago exitoso. ID de suscripción: ${subscriptionID}`);
+
+                try {
+                    // Actualizar la suscripción del usuario en Firestore
+                    const userDoc = doc(db, 'users', user.uid);
+                    await updateDoc(userDoc, { 
+                        isSubscribed: true, 
+                        subscriptionID 
+                    });
+                    alert('Suscripción activada correctamente.');
+                    window.location.href = 'plan.html';
+                } catch (error) {
+                    alert('Error al actualizar la suscripción: ' + error.message);
+                }
+            },
+            onError: function (err) {
+                alert('Hubo un error con el pago: ' + err.message);
+            }
+        }).render('#paypal-button-container-P-8BK72298US320035EM6CCJDQ'); // Renderiza el botón de PayPal
+    </script>
+</body>
+</html>

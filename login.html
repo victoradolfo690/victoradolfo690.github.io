@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">🎵 TuneDrop</div>
+    </header>
+
+    <section class="login">
+        <h1>Iniciar Sesión</h1>
+        <form id="login-form">
+            <label for="email">Correo Electrónico:</label>
+            <input type="email" id="email" required>
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" required>
+            <button type="submit" class="cta-button">Iniciar Sesión</button>
+        </form>
+        <p>¿No tienes cuenta? <a href="#" id="register-link">Regístrate</a></p>
+    </section>
+
+    <footer class="footer">
+        <p>&copy; 2025 TuneDrop. Todos los derechos reservados.</p>
+    </footer>
+
+    <script type="module">
+        import app from './firebase-config.js';
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js';
+
+        const auth = getAuth(app);
+
+        // Manejo de inicio de sesión
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                alert('Inicio de sesión exitoso');
+                window.location.href = 'payment.html';
+            } catch (error) {
+                alert('Error al iniciar sesión: ' + error.message);
+            }
+        });
+
+        // Manejo de registro
+        document.getElementById('register-link').addEventListener('click', async () => {
+            const email = prompt('Ingresa tu correo electrónico:');
+            const password = prompt('Crea una contraseña:');
+
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+                alert('Cuenta creada con éxito. Ahora puedes iniciar sesión.');
+            } catch (error) {
+                alert('Error al crear la cuenta: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
