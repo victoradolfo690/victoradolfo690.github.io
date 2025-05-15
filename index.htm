@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Consulta RNC DGII</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 500px;
+      width: 100%;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .result {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: #f9f9f9;
+      border-radius: 8px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Consulta RNC (DGII)</h2>
+    <input type="text" id="rncInput" placeholder="Ingresa el número de RNC" />
+    <button onclick="consultarRNC()">Consultar</button>
+    <div id="resultado" class="result"></div>
+  </div>
+
+  <script>
+    async function consultarRNC() {
+      const rncBuscado = document.getElementById('rncInput').value.replace(/\s+/g, '').trim();
+      const resultado = document.getElementById('resultado');
+      resultado.style.display = 'block';
+      resultado.innerHTML = 'Buscando...';
+
+      try {
+        const response = await fetch('DGII_RNC.TXT');
+        const text = await response.text();
+        const lineas = text.split(/\r?\n/);
+
+        let encontrado = null;
+
+        for (let linea of lineas) {
+          // Normaliza: limpia espacios, divide por |
+          const partes = linea.split('|').map(p => p.trim());
+          if (partes.length < 3) continue; // Saltar líneas incompletas
+
+          // Intentar extraer el RNC (primera parte) sin espacios
+          const rncArchivo = (partes[0] || '').replace(/\s+/g, '');
+          if (rncArchivo === rncBuscado) {
+            encontrado = partes;
+            break;
+          }
+        }
+
+        if (encontrado) {
+          resultado.innerHTML = `
+            <strong>RNC:</strong> ${encontrado[0] || 'N/A'}<br/>
+            <strong>Nombre:</strong> ${encontrado[1] || 'N/A'}<br/>
+            <strong>Nombre Comercial:</strong> ${encontrado[2] || 'N/A'}<br/>
+            <strong>Actividad:</strong> ${encontrado[3] || 'N/A'}<br/>
+            <strong>Estado:</strong> ${encontrado[6] || 'N/A'}<br/>
+            <strong>Régimen:</strong> ${encontrado[7] || 'N/A'}
+          `;
+        } else {
+          resultado.innerHTML = 'RNC no encontrado.';
+        }
+      } catch (error) {
+        resultado.innerHTML = 'Error al cargar los datos.';
+        console.error(error);
+      }
+    }
+  </script>
+</body>
+</html>
